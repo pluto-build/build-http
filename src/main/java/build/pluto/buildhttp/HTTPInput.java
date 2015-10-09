@@ -5,6 +5,8 @@ import java.io.Serializable;
 import java.net.URL;
 
 public class HTTPInput implements Serializable {
+    private static final long serialVersionUID = 7462906909865275828L;
+
     public final String remoteLocation;
     public final File locationOnLocal;
     public final String fileName;
@@ -20,8 +22,4 @@ public class HTTPInput implements Serializable {
         this.fileName = fileName;
         this.consistencyCheckInterval = consistencyCheckInterval;
     }
-
-    // public String getPathToLocalFile() {
-    //     return locationOnLocal.getAbsolutePath() + "/" + fileName;
-    // }
 }
