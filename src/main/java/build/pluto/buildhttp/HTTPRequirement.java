@@ -13,7 +13,7 @@ public class HTTPRequirement extends RemoteRequirement {
 
     @Override
     public boolean isConsistentWithRemote() {
-        return true;
+        return false;
     }
 
     @Override
