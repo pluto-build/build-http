@@ -29,24 +29,25 @@ public class HTTPDownloader extends Builder<HTTPInput, None> {
 
     @Override
     public File persistentPath(HTTPInput input) {
-        return new File(input.locationOnLocal, "http.dep");
+        return new File(input.locationOnLocal.getAbsolutePath() + "http.dep");
     }
 
     @Override
     protected None build(HTTPInput input) throws Throwable {
-        RemoteRequirement httpRequirement = new HTTPRequirement(
-                new File(input.locationOnLocal, "http.dep.time"),
-                input.consistencyCheckInterval);
-
-        requireOther(httpRequirement);
-        //get file
+        File localFile = input.locationOnLocal.getAbsoluteFile();
         URL remoteURL = new URL(input.remoteLocation);
+        RemoteRequirement httpRequirement = new HTTPRequirement(
+                new File(input.locationOnLocal.getAbsolutePath() + "http.dep.time"),
+                input.consistencyCheckInterval,
+                localFile,
+                remoteURL);
+        requireOther(httpRequirement);
+
+        //get file
         HttpURLConnection httpConnection =
             (HttpURLConnection) remoteURL.openConnection();
         if (httpConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-            String pathToSaveFile =
-                input.locationOnLocal.getAbsolutePath() + "/" + input.fileName;
-            FileOutputStream outputStream = new FileOutputStream(pathToSaveFile);
+            FileOutputStream outputStream = new FileOutputStream(localFile);
             InputStream inputStream = httpConnection.getInputStream();
             int readBytes = -1;
             int BUFFER_SIZE = 4096;
@@ -57,12 +58,7 @@ public class HTTPDownloader extends Builder<HTTPInput, None> {
             inputStream.close();
             outputStream.close();
         } else {
-            String pathToLocalFile =
-                input.locationOnLocal.getAbsolutePath() + "/" + input.fileName;
-            File localFile = new File(pathToLocalFile);
-            if(!localFile.exists()) {
-                throw new IllegalArgumentException("HTTP request could not be sent");
-            }
+            throw new IllegalArgumentException("HTTP request could not be sent");
         }
         httpConnection.disconnect();
         return None.val;

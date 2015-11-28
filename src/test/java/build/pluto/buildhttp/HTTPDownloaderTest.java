@@ -55,7 +55,7 @@ public class HTTPDownloaderTest extends ScopedBuildTest {
 
     private void build() throws IOException {
         HTTPInput input =
-            new HTTPInput(remoteLocation, locationOnLocal, fileName, interval);
+            new HTTPInput(remoteLocation, new File(locationOnLocal, fileName), interval);
         BuildRequest<?, ?, ?, ?> buildRequest =
             new BuildRequest(HTTPDownloader.factory, input);
         BuildManagers.build(buildRequest);
