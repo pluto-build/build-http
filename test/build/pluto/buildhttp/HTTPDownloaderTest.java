@@ -9,56 +9,72 @@ import org.junit.Test;
 
 import build.pluto.builder.BuildManagers;
 import build.pluto.builder.BuildRequest;
-import build.pluto.builder.RequiredBuilderFailed;
 import build.pluto.test.build.ScopedBuildTest;
 import build.pluto.test.build.ScopedPath;
 
 public class HTTPDownloaderTest extends ScopedBuildTest {
-    @ScopedPath("")
-    private File locationOnLocal;
-    private String remoteLocation;
-    private String fileName;
-    private long interval;
+	@ScopedPath("")
+	private File locationOnLocal;
+	private String remoteLocation;
+	private String fileName;
+	private long interval;
 
-    @Test
-    public void testDownload() throws IOException {
-        this.remoteLocation =
-             "http://www.antlr.org/download/antlr-4.4-complete.jar";
-        this.fileName = "antlr-4.4-complete.jar";
-        interval = 0L;
-        build();
-        File downloadedFile = new File(locationOnLocal, fileName);
-        assertTrue(downloadedFile.exists());
-    }
+	@Test
+	public void testDownload() throws Throwable {
+		this.remoteLocation = "http://www.antlr.org/download/antlr-4.4-complete.jar";
+		this.fileName = "antlr-4.4-complete.jar";
+		interval = 0L;
+		build();
+		File downloadedFile = new File(locationOnLocal, fileName);
+		assertTrue(downloadedFile.exists());
+	}
 
-    @Test
-    public void testDownloadTwiceBuilderDoesNotFail() throws IOException {
-        this.remoteLocation =
-             "http://www.antlr.org/download/antlr-4.4-complete.jar";
-        this.fileName = "antlr-4.4-complete.jar";
-        interval = 0L;
-        build();
-        build();
-        File downloadedFile = new File(locationOnLocal, fileName);
-        assertTrue(downloadedFile.exists());
-    }
+	@Test
+	public void testDownloadTwiceBuilderDoesNotFail() throws Throwable {
+		this.remoteLocation = "http://www.antlr.org/download/antlr-4.4-complete.jar";
+		this.fileName = "antlr-4.4-complete.jar";
+		interval = 0L;
+		build();
+		build();
+		File downloadedFile = new File(locationOnLocal, fileName);
+		assertTrue(downloadedFile.exists());
+	}
+	
+	@Test
+	public void testDownloadTwiceIncremental() throws Throwable {
+		this.remoteLocation = "http://www.antlr.org/download/antlr-4.4-complete.jar";
+		this.fileName = "antlr-4.4-complete.jar";
+		interval = 1000L;
+		
+		long start1 = System.currentTimeMillis();
+		build();
+		long end1 = System.currentTimeMillis();
+		long duration1 = end1 - start1;
+		
+		long start2 = System.currentTimeMillis();
+		build();
+		long end2 = System.currentTimeMillis();
+		long duration2 = end2 - start2;
 
-    @Test(expected = RequiredBuilderFailed.class)
-    public void testRemoteLocationCannotBeAccessed() throws IOException {
-        this.remoteLocation =
-             "http://www.antlr.org/downlioad/antlr-4.4-complete.jar";
-        this.fileName = "antlr-4.4-complete.jar";
-        interval = 0L;
-        build();
-        File downloadedFile = new File(locationOnLocal, fileName);
-        assertTrue(downloadedFile.exists());
-    }
+		assertTrue("Interval was chose to small, test is invalid", end2 - start1 < interval);
+		assertTrue("Second build redownloaded the file, which should have been reused", duration2 < 0.1*duration1);
+		
+		File downloadedFile = new File(locationOnLocal, fileName);
+		assertTrue(downloadedFile.exists());
+	}
 
-    private void build() throws IOException {
-        HTTPInput input =
-            new HTTPInput(remoteLocation, new File(locationOnLocal, fileName), interval);
-        BuildRequest<?, ?, ?, ?> buildRequest =
-            new BuildRequest<>(HTTPDownloader.factory, input);
-        BuildManagers.build(buildRequest);
-    }
+	@Test(expected = IOException.class)
+	public void testRemoteLocationCannotBeAccessed() throws Throwable {
+		this.remoteLocation = "http://www.antlr.org/NOT-DOWNLOAD/antlr-4.4-complete.jar";
+		this.fileName = "antlr-4.4-complete.jar";
+		interval = 0L;
+		build();
+		assertTrue(false);
+	}
+
+	private void build() throws Throwable {
+		HTTPInput input = new HTTPInput(remoteLocation, new File(locationOnLocal, fileName), interval);
+		BuildRequest<?, ?, ?, ?> buildRequest = new BuildRequest<>(HTTPDownloader.factory, input);
+		BuildManagers.build(buildRequest);
+	}
 }

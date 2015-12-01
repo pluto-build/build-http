@@ -2,6 +2,7 @@ package build.pluto.buildhttp;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -22,7 +23,7 @@ public class HTTPDownloader extends Builder<HTTPInput, None> {
 
     @Override
     protected String description(HTTPInput input) {
-        return "Gets a remote resource via http get request";
+        return "HTTP download " + input.remoteLocation;
     }
 
     @Override
@@ -42,8 +43,7 @@ public class HTTPDownloader extends Builder<HTTPInput, None> {
         requireOther(httpRequirement);
 
         //get file
-        HttpURLConnection httpConnection =
-            (HttpURLConnection) remoteURL.openConnection();
+        HttpURLConnection httpConnection = (HttpURLConnection) remoteURL.openConnection();
         if (httpConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
             FileOutputStream outputStream = new FileOutputStream(localFile);
             InputStream inputStream = httpConnection.getInputStream();
@@ -56,7 +56,7 @@ public class HTTPDownloader extends Builder<HTTPInput, None> {
             inputStream.close();
             outputStream.close();
         } else {
-            throw new IllegalArgumentException("HTTP request could not be sent");
+            throw new IOException("HTTP request could not be sent: " + httpConnection.getResponseMessage());
         }
         httpConnection.disconnect();
         return None.val;
