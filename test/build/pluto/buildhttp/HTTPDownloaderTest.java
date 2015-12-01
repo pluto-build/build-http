@@ -1,16 +1,17 @@
 package build.pluto.buildhttp;
 
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.io.IOException;
+
+import org.junit.Test;
+
 import build.pluto.builder.BuildManagers;
 import build.pluto.builder.BuildRequest;
 import build.pluto.builder.RequiredBuilderFailed;
-import build.pluto.test.build.ScopedPath;
 import build.pluto.test.build.ScopedBuildTest;
-
-import java.io.IOException;
-import java.net.URL;
-import java.io.File;
-import org.junit.Test;
-import static org.junit.Assert.assertTrue;
+import build.pluto.test.build.ScopedPath;
 
 public class HTTPDownloaderTest extends ScopedBuildTest {
     @ScopedPath("")
@@ -57,7 +58,7 @@ public class HTTPDownloaderTest extends ScopedBuildTest {
         HTTPInput input =
             new HTTPInput(remoteLocation, new File(locationOnLocal, fileName), interval);
         BuildRequest<?, ?, ?, ?> buildRequest =
-            new BuildRequest(HTTPDownloader.factory, input);
+            new BuildRequest<>(HTTPDownloader.factory, input);
         BuildManagers.build(buildRequest);
     }
 }

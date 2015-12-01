@@ -9,7 +9,9 @@ import java.net.URL;
 
 public class HTTPRequirement extends RemoteRequirement {
     
-    private final File localResource;
+    private static final long serialVersionUID = 1L;
+    
+	private final File localResource;
     private final URL url;
 
     public HTTPRequirement(File persistentPath, long consistencyCheckInterval, File localResource, URL url) {

@@ -1,18 +1,16 @@
 package build.pluto.buildhttp;
 
-import build.pluto.builder.BuildUnitProvider;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 import build.pluto.builder.Builder;
 import build.pluto.builder.BuilderFactory;
 import build.pluto.builder.BuilderFactoryFactory;
 import build.pluto.dependency.RemoteRequirement;
 import build.pluto.output.None;
-
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.io.File;
 
 public class HTTPDownloader extends Builder<HTTPInput, None> {
     public static BuilderFactory<HTTPInput, None, HTTPDownloader> factory
