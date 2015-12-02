@@ -44,7 +44,7 @@ public class HTTPDownloaderTest extends ScopedBuildTest {
 	public void testDownloadTwiceIncremental() throws Throwable {
 		this.remoteLocation = "http://www.antlr.org/download/antlr-4.4-complete.jar";
 		this.fileName = "antlr-4.4-complete.jar";
-		interval = 1000L;
+		interval = 10000L;
 		
 		long start1 = System.currentTimeMillis();
 		build();
@@ -56,7 +56,7 @@ public class HTTPDownloaderTest extends ScopedBuildTest {
 		long end2 = System.currentTimeMillis();
 		long duration2 = end2 - start2;
 
-		assertTrue("Interval was chose to small, test is invalid", end2 - start1 < interval);
+		assertTrue("Interval was chosen to small, test is invalid", end2 - start1 < interval);
 		assertTrue("Second build redownloaded the file, which should have been reused", duration2 < 0.1*duration1);
 		
 		File downloadedFile = new File(locationOnLocal, fileName);
