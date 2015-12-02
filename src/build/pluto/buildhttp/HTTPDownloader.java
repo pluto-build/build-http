@@ -28,7 +28,7 @@ public class HTTPDownloader extends Builder<HTTPInput, None> {
 
     @Override
     public File persistentPath(HTTPInput input) {
-        return new File(input.locationOnLocal.getAbsolutePath() + "http.dep");
+        return new File(input.locationOnLocal.getAbsolutePath() + ".http.dep");
     }
 
     @Override
