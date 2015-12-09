@@ -1,6 +1,5 @@
 package build.pluto.buildhttp;
 
-import build.pluto.builder.BuildUnitProvider;
 import build.pluto.dependency.RemoteRequirement;
 import java.io.File;
 import java.io.IOException;
@@ -40,11 +39,5 @@ public class HTTPRequirement extends RemoteRequirement {
     @Override
     protected boolean isLocalResourceAvailable() {
         return localResource.exists();
-    }
-    
-    @Override
-    public boolean tryMakeConsistent(
-            BuildUnitProvider manager) throws IOException {
-        return this.isConsistent();
     }
 }
