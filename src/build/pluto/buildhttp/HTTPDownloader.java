@@ -44,20 +44,17 @@ public class HTTPDownloader extends Builder<HTTPInput, None> {
 
         //get file
         HttpURLConnection httpConnection = (HttpURLConnection) remoteURL.openConnection();
-        if (httpConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-            FileOutputStream outputStream = new FileOutputStream(localFile);
-            InputStream inputStream = httpConnection.getInputStream();
-            int readBytes = -1;
-            int BUFFER_SIZE = 4096;
-            byte[] buffer = new byte[BUFFER_SIZE];
-            while((readBytes = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, readBytes);
-            }
-            inputStream.close();
-            outputStream.close();
-        } else {
-            throw new IOException("HTTP request could not be sent: " + httpConnection.getResponseMessage());
-        }
+        if (httpConnection.getResponseCode() != HttpURLConnection.HTTP_OK) 
+        	throw new IOException("HTTP request could not be sent: " + httpConnection.getResponseMessage());
+    	try (	InputStream inputStream = httpConnection.getInputStream();
+				FileOutputStream outputStream = new FileOutputStream(localFile)) {
+			int readBytes = -1;
+			int BUFFER_SIZE = 4096;
+			byte[] buffer = new byte[BUFFER_SIZE];
+			while ((readBytes = inputStream.read(buffer)) != -1) {
+				outputStream.write(buffer, 0, readBytes);
+			}
+		}
         httpConnection.disconnect();
         return None.val;
     }
