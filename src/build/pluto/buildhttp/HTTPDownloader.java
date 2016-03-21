@@ -8,8 +8,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import build.pluto.builder.Builder;
-import build.pluto.builder.BuilderFactory;
-import build.pluto.builder.BuilderFactoryFactory;
+import build.pluto.builder.factory.BuilderFactory;
+import build.pluto.builder.factory.BuilderFactoryFactory;
 import build.pluto.dependency.RemoteRequirement;
 import build.pluto.output.None;
 
