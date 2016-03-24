@@ -4,7 +4,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 
+import build.pluto.BuildUnit;
+import build.pluto.builder.Builder;
+import build.pluto.output.Output;
+import build.pluto.util.NoReporting;
 import org.junit.Test;
 
 import build.pluto.builder.BuildManagers;
@@ -46,19 +51,9 @@ public class HTTPDownloaderTest extends ScopedBuildTest {
 		this.fileName = "antlr-4.4-complete.jar";
 		interval = 10000L;
 		
-		long start1 = System.currentTimeMillis();
 		build();
-		long end1 = System.currentTimeMillis();
-		long duration1 = end1 - start1;
-		
-		long start2 = System.currentTimeMillis();
-		build();
-		long end2 = System.currentTimeMillis();
-		long duration2 = end2 - start2;
+		buildAndAssertNoRun();
 
-		assertTrue("Interval was chosen to small, test is invalid", end2 - start1 < interval);
-		assertTrue("Second build redownloaded the file, which should have been reused", duration2 < 0.1*duration1);
-		
 		File downloadedFile = new File(locationOnLocal, fileName);
 		assertTrue(downloadedFile.exists());
 	}
@@ -75,6 +70,22 @@ public class HTTPDownloaderTest extends ScopedBuildTest {
 	private void build() throws Throwable {
 		HTTPInput input = new HTTPInput(remoteLocation, new File(locationOnLocal, fileName), interval);
 		BuildRequest<?, ?, ?, ?> buildRequest = new BuildRequest<>(HTTPDownloader.factory, input);
-		BuildManagers.build(buildRequest);
+		BuildManagers.build(buildRequest, new NoReporting() {
+			@Override
+			public <O extends Output> void skippedBuilder(BuildRequest<?, O, ?, ?> req, BuildUnit<O> unit) {
+				throw new AssertionError("Builder should be executed but was skipped.");
+			}
+		});
+	}
+
+	private void buildAndAssertNoRun() throws Throwable {
+		HTTPInput input = new HTTPInput(remoteLocation, new File(locationOnLocal, fileName), interval);
+		BuildRequest<?, ?, ?, ?> buildRequest = new BuildRequest<>(HTTPDownloader.factory, input);
+		BuildManagers.build(buildRequest, new NoReporting() {
+			@Override
+			public <O extends Output> void startedBuilder(BuildRequest<?, O, ?, ?> req, Builder<?, ?> b, BuildUnit<O> oldUnit, Set<BuildReason> reasons) {
+				throw new AssertionError("Builder should not be executed a second time.");
+			}
+		});
 	}
 }
